@@ -44,7 +44,6 @@
 						<argument>${project.build.directory}/generated-resources/jplex/</argument>
 					</arguments>
 					<sourceRoot>${project.build.directory}/generated-sources/jplex/</sourceRoot>
-					<butts></butts>
 					<includePluginDependencies>true</includePluginDependencies>
 				</configuration>
 				<dependencies>
