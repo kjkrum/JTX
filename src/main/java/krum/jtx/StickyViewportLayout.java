@@ -1,4 +1,4 @@
-package krum.swing;
+package krum.jtx;
 
 import java.awt.Component;
 import java.awt.Container;

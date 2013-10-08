@@ -1,14 +1,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.kjkrum</groupId>
+	<groupId>com.chalcodes.jtx</groupId>
 	<artifactId>JTX</artifactId>
-	<version>1.0</version>
+	<version>1.1.1</version>
 	<name>Java Terminal eXtreme</name>
 	<description>A fast and flexible Swing terminal system</description>
+	<url>http://http://chalcodes.com/wiki/index.php?title=Java_Terminal_eXtreme</url>
+	<licenses>
+		<license>
+			<name>Modified BSD License</name>
+			<url>http://opensource.org/licenses/BSD-3-Clause</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<repositories>
+		<repository>
+			<id>chalcodes</id>
+			<url>http://chalcodes.com/maven</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -17,16 +31,42 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.kjkrum</groupId>
+			<groupId>com.chalcodes.automaton</groupId>
 			<artifactId>Automaton</artifactId>
-			<version>1.12</version>
+			<version>1.12.1</version>
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+			    <directory>${project.build.directory}/generated-resources/jplex</directory>
+			    <excludes>
+			        <exclude>**/*.java</exclude>
+		        </excludes>
+			</resource>
+			<resource>
+				<directory>${basedir}</directory>
+				<includes>
+				    <include>LICENSE</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
 				<executions>
 					<execution>
 						<id>jplex-build</id>
@@ -40,102 +80,64 @@
 					<mainClass>krum.jplex.JPlex</mainClass>
 					<arguments>
 						<argument>${basedir}/src/main/jplex/DemoLexer.jplex</argument>
-						<argument>${project.build.directory}/generated-sources/jplex/</argument>
-						<argument>${project.build.directory}/generated-resources/jplex/</argument>
+						<argument>${project.build.directory}/generated-sources/jplex</argument>
+						<argument>${project.build.directory}/generated-resources/jplex</argument>
 					</arguments>
-					<sourceRoot>${project.build.directory}/generated-sources/jplex/</sourceRoot>
+					<sourceRoot>${project.build.directory}/generated-sources/jplex</sourceRoot>
 					<includePluginDependencies>true</includePluginDependencies>
 				</configuration>
 				<dependencies>
 					<dependency>
-						<groupId>com.github.kjkrum</groupId>
+						<groupId>com.chalcodes.jplex</groupId>
 						<artifactId>JPlex</artifactId>
-						<version>1.1</version>
+						<version>1.2.1</version>
 					</dependency>
 				</dependencies>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
 				<executions>
 					<execution>
-						<id>add-resource</id>
-						<phase>generate-resources</phase>
+						<id>attach-javadocs</id>
 						<goals>
-							<goal>add-resource</goal>
+							<goal>jar</goal>
 						</goals>
-						<configuration>
-							<resources>
-								<resource>
-									<directory>${project.build.directory}/generated-resources/jplex/</directory>
-								</resource>
-							</resources>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+				    <!-- exclude automatons and sprite sheets, but include license -->
+				    <excludes>
+				        <exclude>**/*.png</exclude>
+				        <exclude>**/*.automaton.gz</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											exec-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.2.1,)
-										</versionRange>
-										<goals>
-											<goal>java</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											build-helper-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.7,)
-										</versionRange>
-										<goals>
-											<goal>add-resource</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>2.4</version>
+			</extension>
+		</extensions>
 	</build>
+	<distributionManagement>
+		<repository>
+			<id>chalcodes</id>
+			<url>${chalcodes.url}</url>
+		</repository>
+	</distributionManagement>
 </project>

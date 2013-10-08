@@ -1,4 +1,4 @@
-package krum.swing;
+package krum.jtx;
 
 import java.awt.Point;
 

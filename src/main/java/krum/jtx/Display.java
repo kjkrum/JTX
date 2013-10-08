@@ -14,8 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-import krum.swing.StickyScrollable;
-
 public class Display extends JComponent implements BufferObserver, StickyScrollable {
 	private static final long serialVersionUID = 1L;
 	
@@ -26,10 +24,14 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	protected final SoftFont font;
 	protected final Dimension glyphSize;
 	protected final Dimension viewportSize;
-	protected boolean blinkOn = true;
+	protected volatile boolean blinkOn = true;
 	protected final Point preferredScrollOffset;
 	//protected final Scroller scroller;
 	protected final Rectangle paintClip;
+	
+	public Display(Buffer buffer, SoftFont font, int columns, int rows) {
+		this(buffer, font, columns, rows, true);
+	}
 	
 	public Display(Buffer buffer, SoftFont font, int columns, int rows, boolean blink) {
 		this.buffer = buffer;
@@ -61,10 +63,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		}
 	}
 	
-	public Display(Buffer buffer, SoftFont font, int columns, int rows) {
-		this(buffer, font, columns, rows, true);
-	}
-
 	@Override
 	public boolean isPreferredSizeSet() {
 		return true;
@@ -148,12 +146,13 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		}
 		extents.setSize(width, height);
 		revalidate();
+		repaint();
 	}
 
 	@Override
 	synchronized public void contentChanged(Buffer buffer, int x, int y, int width, int height) {
 		// just repaint changed region
-		repaint(x * glyphSize.width, y * glyphSize.height, width * glyphSize.width, height * glyphSize.height);
+		repaint((x - extents.x) * glyphSize.width, (y - extents.y) * glyphSize.height, width * glyphSize.width, height * glyphSize.height);
 	}
 	
 	@Override

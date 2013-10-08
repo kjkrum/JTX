@@ -1,5 +1,6 @@
 package krum.jtx;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,19 +65,32 @@ public class CP437 {
 		return decoded[(int) b & 0xff];
 	}
 	
+	public static String decode(byte[] b, int off, int len) {
+		if(off < 0 || len < 0 || off + len > b.length) {
+			throw new IndexOutOfBoundsException();
+		}
+		char[] str = new char[len];
+		for(int i = 0; i < str.length; ++i) {
+			str[i] = decoded[b[off + i]];
+		}
+		return new String(str);
+	}
+	
+	public static String decode(byte[] b) {
+		return decode(b, 0, b.length);
+	}
+	
 	public static char decode(int b) {
 		return decoded[b];
 	}
 	
 	public static int encode(char c) {
 		if(encoded.containsKey(c)) return encoded.get(c);
-		else throw new IllegalArgumentException();	// TODO: throw something else?
+		else throw new IllegalArgumentException();
 	}
 		
 	public static char[] getDecodeTable() {
-		char[] copy = new char[decoded.length];
-		System.arraycopy(decoded, 0, copy, 0, decoded.length);
-		return copy;
+		return Arrays.copyOf(decoded, decoded.length);
 	}
 	
 }

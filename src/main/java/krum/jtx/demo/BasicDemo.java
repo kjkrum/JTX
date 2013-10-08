@@ -11,7 +11,7 @@ import javax.swing.SwingUtilities;
 import krum.jtx.Display;
 import krum.jtx.ScrollbackBuffer;
 import krum.jtx.SoftFont;
-import krum.swing.StickyScrollPane;
+import krum.jtx.StickyScrollPane;
 import krum.jtx.VGASoftFont;
 
 public class BasicDemo extends JFrame {

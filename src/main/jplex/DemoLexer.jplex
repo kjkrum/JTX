@@ -8,7 +8,7 @@ subset of ANSI x3.64 and VT-series escape codes. -->
 	<Prefix>Demo</Prefix>
 	<StateListener>false</StateListener>
 	<Loggers>false</Loggers>
-	<ResourcePath>resources/jtx/demo/automatons</ResourcePath>
+	<ResourcePath>krum/jtx/demo/lexer</ResourcePath>
 	
 	<State name="DEFAULT"/>
 	<InitialState>DEFAULT</InitialState>

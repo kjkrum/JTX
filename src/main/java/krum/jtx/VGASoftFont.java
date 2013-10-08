@@ -37,10 +37,6 @@ public class VGASoftFont implements SoftFont {
 	protected final BufferedImage bufferedImage;
 	protected VolatileImage volatileImage;
 	
-	/**
-	 * 
-	 * @param glyphSheet
-	 */
 	public VGASoftFont(BufferedImage glyphSheet) {
 		int width = glyphSheet.getWidth();
 		int height = glyphSheet.getHeight();
@@ -62,23 +58,12 @@ public class VGASoftFont implements SoftFont {
 		graphics.dispose();
 	}
 	
-	/**
-	 * 
-	 * @param resource
-	 * @throws IOException
-	 */
 	public VGASoftFont(String resource) throws IOException {
 		this(ImageIO.read(VGASoftFont.class.getResourceAsStream(resource)));
 	}
 	
-	/**
-	 * Creates a new <tt>VGASoftFont</tt> using the default 9x16 VGA glyph
-	 * sheet included with JTX.
-	 * 
-	 * @throws IOException
-	 */
 	public VGASoftFont() throws IOException {
-		this("/resources/jtx/glyphsheets/vga9x16.png");
+		this("/krum/jtx/vga9x16.png");
 	}
 	
 	@Override
@@ -88,27 +73,65 @@ public class VGASoftFont implements SoftFont {
 
 	@Override
 	public void drawGlyph(int value, boolean blinkOn, Graphics graphics, int x, int y) {
-		int character = value & 0xFFFF;
-		if(!blinkOn && (value & VGABufferElement.BLINKING) != 0) character = 0;
-		else if(character > 255) character = '?';
+		Graphics2D g2d = (Graphics2D) graphics;
+		GraphicsConfiguration gc = g2d.getDeviceConfiguration();
 		
 		int colorAttr = (value & 0x7F0000) >> 16;
 		if((value & VGABufferElement.INVERTED) != 0) {
 			colorAttr ^= 0x3F;
 		}
 
-		int dx1 = x;
-		int dy1 = y;
-		int dx2 = dx1 + glyphSize.width;
-		int dy2 = dy1 + glyphSize.height;
-		int sx1 = character * glyphSize.width;
-		int sy1 = colorAttr * glyphSize.height;
-		int sx2 = sx1 + glyphSize.width;
-		int sy2 = sy1 + glyphSize.height;
+		// if value has blink attribute and blink is off, draw glyph 0
+		if(!blinkOn && (value & VGABufferElement.BLINKING) != 0) {
+			int dx1 = x;
+			int dy1 = y;
+			int dx2 = dx1 + glyphSize.width;
+			int dy2 = dy1 + glyphSize.height;
+			int sx1 = 0;
+			int sy1 = colorAttr * glyphSize.height;
+			int sx2 = sx1 + glyphSize.width;
+			int sy2 = sy1 + glyphSize.height;
+			blit(g2d, gc, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2);
+		}
+		else { // draw the requested glyph
+			int character = value & 0xFFFF;
+			if(character > 255) character = '?';
+			int dx1 = x;
+			int dy1 = y;
+			int dx2 = dx1 + glyphSize.width;
+			int dy2 = dy1 + glyphSize.height;
+			int sx1 = character * glyphSize.width;
+			int sy1 = colorAttr * glyphSize.height;
+			int sx2 = sx1 + glyphSize.width;
+			int sy2 = sy1 + glyphSize.height;
+			blit(g2d, gc, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2);
+			
+			// if value has underline attribute, copy pixels from glyph 219
+			if((value & VGABufferElement.UNDERLINED) != 0) {
+				sx1 = 219 * glyphSize.width;
+				sx2 = sx1 + glyphSize.width;
+				sy2 = sy1 + 1;
 
-		Graphics2D g2d = (Graphics2D) graphics;
-		GraphicsConfiguration gc = g2d.getDeviceConfiguration();
-		
+				// set the top of the underline
+				int uly1 = Math.round((float) glyphSize.height * 7 / 8);
+				if(uly1 == glyphSize.height) {
+					--uly1;
+				}
+				dy1 = dy1 + uly1;
+				
+				// set the thickness of the underline
+				int uly2 = Math.round((float) glyphSize.height * 1 / 16);
+				if(uly2 == 0) {
+					uly2 = 1;
+				}
+				dy2 = dy1 + uly2;
+				
+				blit(g2d, gc, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2);
+			}
+		}
+	}
+	
+	protected void blit(Graphics2D g2d, GraphicsConfiguration gc, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2) {
 		do {
 			switch(volatileImage.validate(gc)) {
 			case VolatileImage.IMAGE_INCOMPATIBLE:
@@ -122,10 +145,5 @@ public class VGASoftFont implements SoftFont {
 			g2d.drawImage(volatileImage, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, null);
 			// make sure image wasn't invalidated during drawing
 		} while(volatileImage.validate(gc) != VolatileImage.IMAGE_OK);
-		
-		// TODO: draw underline if needed 
 	}
-	
-	
-
 }
