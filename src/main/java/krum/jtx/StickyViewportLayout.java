@@ -55,14 +55,16 @@ public class StickyViewportLayout extends ViewportLayout {
 			((StickyScrollable) view).getPreferredScrollOffset(offset);
 			stickyClient = true;
 		}
-		
+
 		// y axis
-		if(visible.y + visible.height == oldSize.height) {
-			if(newSize.height > oldSize.height && newSize.height > visible.height) {
-				visible.y = newSize.height - visible.height;
-				doScroll = true;
-			}
-		}
+		// scroll to the bottom if the viewport was previously positioned at
+		// the bottom, or if the client just became larger than the viewport
+		// TODO handle case where viewport is resized - use oldVisible/newVisible?
+		if (visible.y + visible.height == oldSize.height
+				|| (newSize.height > visible.height && oldSize.height <= visible.height)) {
+			visible.y = newSize.height - visible.height;
+			doScroll = true;
+		}		
 		else if(stickyClient && offset.y != 0) {
 			visible.y += offset.y;
 			if (visible.y < 0) visible.y = 0;
@@ -70,11 +72,10 @@ public class StickyViewportLayout extends ViewportLayout {
 		}
 		
 		// x axis
-		if(visible.x + visible.width == oldSize.width) {
-			if(newSize.width > oldSize.width && newSize.width > visible.width) {
-				visible.x = newSize.width - visible.width;
-				doScroll = true;
-			}
+		if(visible.x + visible.width == oldSize.width
+				|| (newSize.width > visible.width && oldSize.width <= visible.width)) {
+			visible.x = newSize.width - visible.width;
+			doScroll = true;
 		}
 		else if(stickyClient && offset.x != 0) {
 			visible.x += offset.x;
