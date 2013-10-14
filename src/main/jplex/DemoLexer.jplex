@@ -31,7 +31,7 @@ subset of ANSI x3.64 and VT-series escape codes. -->
 		
 		<!-- This sequence enables DEC auto-wrap mode.  The parser always
 		operates in auto-wrap mode, so we match this just to ignore it. -->
-		<Rule expr="&#27;\[?7h"/>
+		<Rule expr="&#27;\[\??7h"/>
 
 		<!-- the parser will be simpler if we give certain characters their own events -->
 		<Rule expr="&#10;" event="lineFeed"/>
