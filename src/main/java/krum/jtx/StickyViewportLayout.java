@@ -35,7 +35,9 @@ public class StickyViewportLayout extends ViewportLayout {
 	
 	protected final Dimension oldSize = new Dimension();
 	protected final Dimension newSize = new Dimension();
-	protected Rectangle visible = new Rectangle();
+	//protected Rectangle visible = new Rectangle();
+	protected final Rectangle oldVisible = new Rectangle();
+	protected Rectangle newVisible = new Rectangle();
 	protected Point offset = new Point();
 
 	@Override
@@ -44,9 +46,9 @@ public class StickyViewportLayout extends ViewportLayout {
 		JViewport viewport = (JViewport) owner;
 		Component view = viewport.getView();
 		if(view instanceof JComponent) {
-			((JComponent)view).computeVisibleRect(visible);
+			((JComponent)view).computeVisibleRect(newVisible);
 		}
-		else visible = viewport.getViewRect();
+		else newVisible = viewport.getViewRect();
 		view.getSize(newSize);
 		boolean doScroll = false;
 		boolean stickyClient = false;
@@ -56,35 +58,32 @@ public class StickyViewportLayout extends ViewportLayout {
 			stickyClient = true;
 		}
 
-		// y axis
-		// scroll to the bottom if the viewport was previously positioned at
-		// the bottom, or if the client just became larger than the viewport
-		// TODO handle case where viewport is resized - use oldVisible/newVisible?
-		if (visible.y + visible.height == oldSize.height
-				|| (newSize.height > visible.height && oldSize.height <= visible.height)) {
-			visible.y = newSize.height - visible.height;
-			doScroll = true;
-		}		
+		// y axis - scroll to the bottom if:
+		// the viewport was previously positioned at the bottom, and the client height changed; or
+		// the viewport was previously positioned at the bottom, and the viewport height changed; or
+		// the client height was smaller than the viewport height, and is now larger
+		if((oldVisible.y + oldVisible.height == oldSize.height
+				&& (oldSize.height != newSize.height || oldVisible.height != newVisible.height))
+				|| (newSize.height > newVisible.height && oldSize.height <= oldVisible.height)) {
+			newVisible.y = newSize.height - newVisible.height;
+			doScroll = true;			
+		}
+		// else honor requested offset
 		else if(stickyClient && offset.y != 0) {
-			visible.y += offset.y;
-			if (visible.y < 0) visible.y = 0;
+			newVisible.y += offset.y;
+			if(newVisible.y < 0) newVisible.y = 0;
 			doScroll = true;
 		}
 		
-		// x axis
-		if(visible.x + visible.width == oldSize.width
-				|| (newSize.width > visible.width && oldSize.width <= visible.width)) {
-			visible.x = newSize.width - visible.width;
-			doScroll = true;
-		}
-		else if(stickyClient && offset.x != 0) {
-			visible.x += offset.x;
-			if (visible.x < 0) visible.x = 0;
+		// x axis - honor requested offset
+		if(stickyClient && offset.x != 0) {
+			newVisible.x += offset.x;
+			if(newVisible.x < 0) newVisible.x = 0;
 			doScroll = true;
 		}
 		
-		if(doScroll) viewport.setViewPosition(visible.getLocation());
-
+		if(doScroll) viewport.setViewPosition(newVisible.getLocation());
 		oldSize.setSize(newSize);
+		oldVisible.setBounds(newVisible);
 	}
 }
