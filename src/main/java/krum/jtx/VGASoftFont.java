@@ -17,8 +17,8 @@ import javax.imageio.ImageIO;
  * glyph sheet.  The glyph sheet is stored as a volatile image to enable
  * hardware acceleration.  The pixel dimensions of the glyph sheet determine
  * the glyph size of the font, and must be a multiple of 256 pixels in width
- * and 128 pixels in height.  The size and position of the underline overlay
- * is calculated automatically.
+ * and 128 pixels in height.  The size and position of the underline attribute
+ * overlay is calculated automatically.
  * <p>
  * The glyph sheet contains 128 rows of 256 glyphs, rendered in all possible
  * combinations of foreground color, background color, and the "bright"
@@ -32,7 +32,6 @@ import javax.imageio.ImageIO;
  * @author Kevin Krumwiede (kjkrum@gmail.com)
  */
 public class VGASoftFont implements SoftFont {
-
 	protected final Dimension glyphSize;
 	protected final BufferedImage bufferedImage;
 	protected VolatileImage volatileImage;
@@ -77,7 +76,7 @@ public class VGASoftFont implements SoftFont {
 		GraphicsConfiguration gc = g2d.getDeviceConfiguration();
 		
 		int colorAttr = (value & 0x7F0000) >> 16;
-		if((value & VGABufferElement.INVERTED) != 0) {
+		if((value & VGABufferElement.INVERTED) != 0 ^ (value & VGABufferElement.SELECTED) != 0) {
 			colorAttr ^= 0x3F;
 		}
 

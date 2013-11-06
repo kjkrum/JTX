@@ -14,6 +14,8 @@ import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+// TODO reimplement Display as a synchronized extension of SwingDisplay
+
 public class SwingDisplay extends JComponent implements BufferObserver, StickyScrollable {
 	private static final long serialVersionUID = 1L;
 	
@@ -214,6 +216,35 @@ public class SwingDisplay extends JComponent implements BufferObserver, StickySc
 	public void getPreferredScrollOffset(Point point) {
 		point.setLocation(preferredScrollOffset.x * glyphSize.width, preferredScrollOffset.y * glyphSize.height);
 		preferredScrollOffset.setLocation(0, 0);
+	}
+	
+	/**
+	 * Calculates the buffer coordinates corresponding to a point in the
+	 * component's coordinate space.  Note that if the point is outside the
+	 * component, the value returned will be outside the buffer extents.
+	 * 
+	 * @param point the location relative to the component
+	 * @return the corresponding buffer coordinates
+	 */
+	public Point getBufferCoordinates(Point point) {
+		Point result = new Point();
+		getBufferCoordinates(point, result);
+		return result;
+	}
+	
+	/**
+	 * Calculates the buffer coordinates corresponding to a point in the
+	 * component's coordinate space, storing the value in <tt>result</tt>.
+	 * Note that if the point is outside the component, the value returned
+	 * will be outside the buffer extents.
+	 * 
+	 * @param point the location relative to the component
+	 * @param result the object in which to store the buffer coordinates
+	 */
+	public void getBufferCoordinates(Point point, Point result) {
+		int col = (point.x / glyphSize.width) + extents.x;
+		int row = (point.y / glyphSize.height) + extents.y;
+		result.setLocation(col, row);
 	}
 
 }

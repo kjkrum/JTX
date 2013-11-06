@@ -34,6 +34,8 @@ public class VGABufferElement implements Serializable {
 	public static final int UNDERLINED		= 0x1000000;
 	/** The mask for the inverted attribute bit. */
 	public static final int INVERTED		= 0x2000000;
+	/** The mask for the selected attribute bit. */
+	public static final int SELECTED		= 0x4000000;
 	/** 
 	 * The default character and attributes.  Represents character 0 and gray
 	 * on black.
@@ -184,6 +186,14 @@ public class VGABufferElement implements Serializable {
 	 */
 	public static int setInverted(int value, boolean inverted) {
 		return setBit(value, INVERTED, inverted);
+	}
+	
+	public static boolean isSelected(int value) {
+		return (value & SELECTED) != 0;
+	}
+	
+	public static int setSelected(int value, boolean selected) {
+		return setBit(value, SELECTED, selected);
 	}
 	
 	/**

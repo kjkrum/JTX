@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+//TODO reimplement ScrollbackBuffer as a synchronized extension of SwingScrollbackBuffer
+
 /**
- * Similar to {@link ScrollbackBuffer}, but without any synchronization.
+ * Similar to {@link ScrollbackBuffer}, but without any synchronization.  Use
+ * this with a {@link SwingDisplay} when the buffer will be modified only in
+ * the UI thread.
  *
  * @author <a href="mailto:kjkrum@gmail.com">Kevin Krumwiede</a>
  */
