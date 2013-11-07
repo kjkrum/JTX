@@ -3,11 +3,14 @@ package krum.jtx;
 import java.awt.Rectangle;
 
 /**
- * Contains characters and attributes.
+ * Conceptually encapsulates a two-dimensional array of integers, typically
+ * encoding characters and attributes.  Implementations may handle attempts to
+ * access column or row coordinates outside the buffer extents by changing the
+ * extents, truncating or wrapping the data, or throwing an
+ * <tt>IndexOutOfBoundsException</tt>.
  * <p>
- * Implementations may handle attempts to access column or row coordinates
- * outside the buffer extents by changing the extents, truncating or wrapping
- * the data, or throwing an <tt>IndexOutOfBoundsException</tt>. 
+ * <b>Note:</b> This is a legacy interface.  New code should implement the
+ * extended {@link BlockBuffer} interface instead.
  *
  * @author Kevin Krumwiede (kjkrum@gmail.com)
  */

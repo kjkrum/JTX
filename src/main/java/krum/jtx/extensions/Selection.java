@@ -1,6 +1,7 @@
 package krum.jtx.extensions;
 
 public class Selection {
+	/** [row][column] */
 	private final int[][] values;
 	
 	public Selection(int[][] values) {

@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author <a href="mailto:kjkrum@gmail.com">Kevin Krumwiede</a>
  */
-public class SwingScrollbackBuffer implements Buffer {
+public class SwingScrollbackBuffer implements BlockBuffer {
 	protected final int[][] values;
 	protected final Rectangle extents;
 	protected final List<BufferObserver> observers = new ArrayList<BufferObserver>();
@@ -37,6 +37,32 @@ public class SwingScrollbackBuffer implements Buffer {
 	public int getContent(int column, int row) {
 		if(row < extents.y || row > extents.y + extents.height) throw new IndexOutOfBoundsException();
 		return values[row % values.length][column];
+	}
+
+	@Override
+	public void getContent(int column, int row, int len, int[] result) {
+		if(row < extents.y || row > extents.y + extents.height) throw new IndexOutOfBoundsException();
+		System.arraycopy(values[row % values.length], column, result, 0, len);
+	}
+
+	@Override
+	public int[] getContent(int column, int row, int len) {
+		int[] result = new int[len];
+		getContent(column, row, len, result);
+		return result;
+	}
+
+	@Override
+	public void getContent(int column, int row, int width, int height, int[][] result) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int[][] getContent(int column, int row, int width, int height) {
+		int[][] result = new int[height][width];
+		getContent(column, row, width, height, result);
+		return result;
 	}
 
 	@Override
@@ -65,7 +91,13 @@ public class SwingScrollbackBuffer implements Buffer {
 		System.arraycopy(values, off, this.values[row % this.values.length], column, len);
 		fireContentChanged(column, row, len, 1);
 	}
-	
+
+	@Override
+	public void setContent(int column, int row, int[][] values, int srcColumn, int srcRow, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	/**
 	 * A convenience method for writing a character sequence to the buffer.
 	 * This method truncates any part of the sequence that falls outside the
