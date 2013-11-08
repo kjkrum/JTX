@@ -58,27 +58,29 @@ public class StickyViewportLayout extends ViewportLayout {
 			stickyClient = true;
 		}
 
-		// y axis - scroll to the bottom if:
-		// the viewport was previously positioned at the bottom, and the client height changed; or
-		// the viewport was previously positioned at the bottom, and the viewport height changed; or
-		// the client height was smaller than the viewport height, and is now larger
-		if((oldVisible.y + oldVisible.height == oldSize.height
-				&& (oldSize.height != newSize.height || oldVisible.height != newVisible.height))
-				|| (newSize.height > newVisible.height && oldSize.height <= oldVisible.height)) {
-			newVisible.y = newSize.height - newVisible.height;
-			doScroll = true;			
-		}
-		// else honor requested offset
-		else if(stickyClient && offset.y != 0) {
-			newVisible.y += offset.y;
-			if(newVisible.y < 0) newVisible.y = 0;
-			doScroll = true;
+		// if viewport was previously positioned at the bottom...
+		if(oldVisible.y + oldVisible.height == oldSize.height) {
+			// if the client height or viewport height changed...
+			if (oldSize.height != newSize.height || oldVisible.height != newVisible.height) {
+				// scroll to the bottom
+				newVisible.y = newSize.height - newVisible.height;
+				doScroll = true;			
+			}
+			// else just stay at the bottom
 		}
 		
-		// x axis - honor requested offset
-		if(stickyClient && offset.x != 0) {
+		// also scroll if client height was smaller than viewport height, and is now larger
+		else if(newSize.height > newVisible.height && oldSize.height <= oldVisible.height) {
+			newVisible.y = newSize.height - newVisible.height;
+			doScroll = true;
+		}		
+		
+		// else honor requested offset
+		else if(stickyClient && (offset.x != 0 || offset.y != 0)) {
 			newVisible.x += offset.x;
+			newVisible.y += offset.y;
 			if(newVisible.x < 0) newVisible.x = 0;
+			if(newVisible.y < 0) newVisible.y = 0;
 			doScroll = true;
 		}
 		
