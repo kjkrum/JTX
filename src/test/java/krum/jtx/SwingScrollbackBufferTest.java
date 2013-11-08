@@ -1,18 +1,18 @@
 package krum.jtx;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.Rectangle;
 
 import org.junit.Test;
 
-public class ScrollbackBufferTest {
+public class SwingScrollbackBufferTest {
 
 	@Test
 	public void testReadWriteWithoutScroll() {
 		final int cols = 10;
 		final int rows = 5;
-		final ScrollbackBuffer buffer = new ScrollbackBuffer(cols, rows);
+		final SwingScrollbackBuffer buffer = new SwingScrollbackBuffer(cols, rows);
 		
 		final Rectangle initialExtents = buffer.getExtents();		
 		assertEquals("intial extents", initialExtents, new Rectangle(0, 0, cols, 0));
@@ -33,7 +33,7 @@ public class ScrollbackBufferTest {
 	public void testReadWriteWithScroll() {
 		final int cols = 1;
 		final int rows = 10;
-		final ScrollbackBuffer buffer = new ScrollbackBuffer(cols, rows);
+		final SwingScrollbackBuffer buffer = new SwingScrollbackBuffer(cols, rows);
 		
 		buffer.setContent(0, 1, 'A');
 		buffer.setContent(0, rows, 'B'); // this should cause scrolling
@@ -51,7 +51,7 @@ public class ScrollbackBufferTest {
 	public void testRowIndexAfterScroll() {
 		final int cols = 1;
 		final int rows = 13;
-		final ScrollbackBuffer buffer = new ScrollbackBuffer(cols, rows);
+		final SwingScrollbackBuffer buffer = new SwingScrollbackBuffer(cols, rows);
 		for(int row = 0; row < 100; ++row) {
 			buffer.setContent(0, row, row);
 		}
@@ -62,10 +62,9 @@ public class ScrollbackBufferTest {
 	public void testReadBeforeHead() {
 		final int cols = 1;
 		final int rows = 10;
-		final ScrollbackBuffer buffer = new ScrollbackBuffer(cols, rows);
+		final SwingScrollbackBuffer buffer = new SwingScrollbackBuffer(cols, rows);
 		
 		buffer.setContent(0, rows, 'A'); // this should cause scrolling
 		buffer.getContent(0, 0); // this should throw an exception
-	}	
-
+	}
 }
