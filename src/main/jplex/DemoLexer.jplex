@@ -4,7 +4,7 @@
 subset of ANSI x3.64 and VT-series escape codes. -->
 
 <LexerSpec>
-	<Package>krum.jtx.demo.lexer</Package>
+	<Package>com.chalcodes.jtx.demo.lexer</Package>
 	<Prefix>Demo</Prefix>
 	<StateListener>false</StateListener>
 	<Loggers>false</Loggers>
