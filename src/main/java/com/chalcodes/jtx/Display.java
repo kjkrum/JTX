@@ -14,8 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-// TODO reimplement Display as a synchronized extension of SwingDisplay
-
 public class Display extends JComponent implements BufferObserver, StickyScrollable {
 	private static final long serialVersionUID = 1L;
 	
@@ -235,16 +233,23 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	/**
 	 * Calculates the buffer coordinates corresponding to a point in the
 	 * component's coordinate space, storing the value in <tt>result</tt>.
-	 * Note that if the point is outside the component, the value returned
-	 * will be outside the buffer extents.
+	 * The point may be outside the buffer extents.
 	 * 
 	 * @param point the location relative to the component
 	 * @param result the object in which to store the buffer coordinates
 	 */
 	public void getBufferCoordinates(Point point, Point result) {
-		int col = (point.x / glyphSize.width) + extents.x;
-		int row = (point.y / glyphSize.height) + extents.y;
+		int col = (int) Math.floor((double)point.x / glyphSize.width) + extents.x;
+		int row = (int) Math.floor((double)point.y / glyphSize.height) + extents.y;
 		result.setLocation(col, row);
 	}
-
+	
+	/**
+	 * Gets the buffer this display is attached to.
+	 * 
+	 * @return the buffer
+	 */
+	public Buffer getBuffer() {
+		return buffer;
+	}
 }
