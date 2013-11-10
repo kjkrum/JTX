@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//TODO reimplement ScrollbackBuffer as a synchronized extension of SwingScrollbackBuffer
-
 /**
  * Similar to {@link XXXScrollbackBuffer}, but without any synchronization.  Use
  * this with a {@link Display} when the buffer will be modified only in
@@ -54,8 +52,9 @@ public class ScrollbackBuffer implements Buffer {
 
 	@Override
 	public void getContent(int column, int row, int width, int height, int[][] result) {
-		// TODO Auto-generated method stub
-		
+		for(int r = 0; r < height; ++r) {
+			System.arraycopy(this.values[row + r], column, result[r], 0, width);
+		}
 	}
 
 	@Override
@@ -87,15 +86,24 @@ public class ScrollbackBuffer implements Buffer {
 			len -= column + len - this.values[0].length;
 		}
 		if(len <= 0) return;
-		//System.out.printf("col=%d, row=%d, off=%d, len=%d\n", column, row, off, len);
 		System.arraycopy(values, off, this.values[row % this.values.length], column, len);
 		fireContentChanged(column, row, len, 1);
 	}
 
 	@Override
-	public void setContent(int column, int row, int[][] values, int srcColumn, int srcRow, int width, int height) {
-		// TODO Auto-generated method stub
-		
+	public void setContent(int column, int row, int[][] values, int width, int height) {
+		if(values.length < height || !extents.contains(column, row, width, height)) {
+			throw new IndexOutOfBoundsException();
+		}
+		for(int i = 0; i < values.length; ++i) {
+			if(values[i].length < width) {
+				throw new IndexOutOfBoundsException();
+			}
+		}
+		for(int r = 0; r < height; ++r) {
+			System.arraycopy(values[r], 0, this.values[row + r], column, width);
+		}
+		fireContentChanged(column, row, width, height);
 	}
 
 	/**

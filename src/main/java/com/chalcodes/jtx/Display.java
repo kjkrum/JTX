@@ -7,8 +7,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
@@ -43,12 +41,13 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		
 		buffer.addBufferObserver(this);
 		
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				requestFocusInWindow();
-			}			
-		});
+		// key listener *stops* working when display has focus... hmmm...
+//		addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				requestFocusInWindow();
+//			}			
+//		});
 		
 		// this is what makes blinking text blink
 		if(blink) {

@@ -64,8 +64,8 @@ public class Buffers {
 		}
 
 		@Override
-		synchronized public void setContent(int column, int row, int[][] values, int srcColumn, int srcRow, int width, int height) {
-			wrapped.setContent(column, row, values, srcColumn, srcRow, width, height);			
+		synchronized public void setContent(int column, int row, int[][] values, int width, int height) {
+			wrapped.setContent(column, row, values, width, height);			
 		}
 
 		@Override

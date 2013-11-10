@@ -96,12 +96,10 @@ public interface Buffer {
 	 * @param column the destination column
 	 * @param row the destination row
 	 * @param values the values to copy, indexed as [row][column]
-	 * @param srcColumn the column offset within <tt>values</tt>
-	 * @param srcRow the row offset within <tt>values</tt>
 	 * @param width the width of the region to be copied
 	 * @param height the height of the region to be copied
 	 */
-	public abstract void setContent(int column, int row, int[][] values, int srcColumn, int srcRow, int width, int height);
+	public abstract void setContent(int column, int row, int[][] values, int width, int height);
 
 	/**
 	 * Gets the buffer extents.

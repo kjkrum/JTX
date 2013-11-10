@@ -21,12 +21,12 @@ public class SelectionControl {
 	private final Display display;
 	private final Buffer buffer;
 	private final JViewport viewport;
-	/** Buffer coordinates of the selection anchor; may be outside buffer extents */
+	/** Buffer coordinates where button was pressed; may be outside buffer extents */
 	private final Point anchor = new Point();
-	/** Buffer coordinates of the selection drag handle; may be outside buffer extents */
+	/** Buffer coordinates where pointer was dragged; may be outside buffer extents */
 	private final Point handle = new Point();
 	/** The previously calculated selection */
-	private final Rectangle oldSelection = new Rectangle();
+	private Rectangle activeSelection;
 
 	/**
 	 * Sets up a new selection control.  The control adds listeners to the
@@ -58,28 +58,40 @@ public class SelectionControl {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if(e.getButton() == MouseEvent.BUTTON1) {
-				if(!oldSelection.isEmpty()) {
-					Rectangle newSelection = new Rectangle();
-					replaceSelection(oldSelection, newSelection);
+				if(activeSelection != null) {
+					setSelection(activeSelection, false);
+					activeSelection = null;
 				}
 				Point p = e.getPoint();
 				if(e.getComponent() == viewport) {
 					transformToClientCoords(p);
 				}
 				display.getBufferCoordinates(p, anchor);
-				System.out.println("pressed at " + anchor);
+//				System.out.println("pressed at " + anchor);
 			}
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			// TODO check which button is down?
 			Point p = e.getPoint();
 			if(e.getComponent() == viewport) {
 				transformToClientCoords(p);
 			}
 			display.getBufferCoordinates(p, handle);
-			Rectangle newSelection = createRectangle(anchor, handle);
-			replaceSelection(oldSelection, newSelection);		
+//			System.out.println("anchor: " + anchor + " handle: " + handle);
+			if(activeSelection == null) {
+				activeSelection = createRectangle(anchor, handle);
+				setSelection(activeSelection, true);
+			}
+			else {
+				Rectangle newSelection = createRectangle(anchor, handle);
+				if(!newSelection.equals(activeSelection)) {
+					setSelection(activeSelection, false);	
+					setSelection(newSelection, true);
+					activeSelection = newSelection;
+				}
+			}		
 		}
 	}
 	
@@ -92,39 +104,61 @@ public class SelectionControl {
 	 */
 	private void transformToClientCoords(Point point) {
 		Point p = viewport.getViewPosition();
-		p.x += point.x;
-		p.y += point.y;
+		point.x += p.x;
+		point.y += p.y;
 	}
 	
 	/**
-	 * Redraws the selection and sets the bounds of <tt>oldSelection</tt> to
-	 * those of <tt>newSelection</tt>.
+	 * Use this to clear old selection or create new one.
 	 * 
-	 * @param oldSelection
-	 * @param newSelection
+	 * @param selection
+	 * @param selected
 	 */
-	private void replaceSelection(Rectangle oldSelection, Rectangle newSelection) {
-		if(!oldSelection.equals(newSelection)) {
-			System.out.println("selecting " + newSelection);
-			Rectangle union = oldSelection.union(newSelection).intersection(buffer.getExtents());
-			if(!union.isEmpty()) {
-				int[][] copied = buffer.getContent(union.x, union.y, union.width, union.height);
-				for(int row = 0; row < copied.length; ++row) {
-					for(int col = 0; col < copied[row].length; ++col) {
-						if(oldSelection.contains(col, row) && !newSelection.contains(col, row)) {
-							copied[row][col] = VgaBufferElement.setSelected(copied[row][col], false); 
-						}
-						else if(newSelection.contains(col, row) && !oldSelection.contains(col, row)) {
-							copied[row][col] = VgaBufferElement.setSelected(copied[row][col], true); 
-						}
-					}
+	private void setSelection(Rectangle selection, boolean selected) {
+//		System.out.println((selected ? "selecting " : "clearing ") + selection);
+		Rectangle union = selection.intersection(buffer.getExtents());
+//		System.out.println("selection ∩ extents: " + union);
+		if(!union.isEmpty()) {
+			int[][] copied = buffer.getContent(union.x, union.y, union.width, union.height);
+			for(int r = 0; r < copied.length; ++r) {
+				for(int c = 0; c < copied[r].length; ++c) {
+					copied[r][c] = VgaBufferElement.setSelected(copied[r][c], selected);
+//					System.out.println("copied[" + r + "][" + c + "] == " + Integer.toHexString(copied[r][c]));
 				}
-				System.out.println("updating " + new Rectangle(union.x, union.y, union.width, union.height));
-				buffer.setContent(union.x, union.y, copied, 0, 0, union.width, union.height);
 			}
-			oldSelection.setBounds(newSelection);
+			buffer.setContent(union.x, union.y, copied, union.width, union.height);
 		}
 	}
+	
+//	/**
+//	 * Use this when selection already exists during drag.
+//	 * 
+//	 * @param oldSelection
+//	 * @param newSelection
+//	 */
+//	private void replaceSelection(Rectangle oldSelection, Rectangle newSelection) {
+//		System.out.printf("replacing %s with %s\n", oldSelection, newSelection);
+//		if(!oldSelection.equals(newSelection)) {
+//			Rectangle union = oldSelection.union(newSelection).intersection(buffer.getExtents());
+//			System.out.println("(oldSelection ∪ newSelection) ∩ extents: " + union);
+//			if(!union.isEmpty()) {
+//				int[][] copied = buffer.getContent(union.x, union.y, union.width, union.height);
+//				for(int r = 0; r < copied.length; ++r) {
+//					for(int c = 0; c < copied[r].length; ++c) {
+//						if(oldSelection.contains(union.x + c, union.y + r) && !newSelection.contains(union.x + c, union.y + r)) {
+//							copied[r][c] = VgaBufferElement.setSelected(copied[r][c], false);
+//							System.out.println("union[" + r + "][" + c + "] == " + Integer.toHexString(copied[r][c]));
+//						}
+//						else if(newSelection.contains(union.x + c, union.y + r) && !oldSelection.contains(union.x + c, union.y + r)) {
+//							copied[r][c] = VgaBufferElement.setSelected(copied[r][c], true);
+//							System.out.println("union[" + r + "][" + c + "] == " + Integer.toHexString(copied[r][c]));
+//						}
+//					}
+//				}
+//				buffer.setContent(union.x, union.y, copied, union.width, union.height);
+//			}
+//		}
+//	}
 	
 	/**
 	 * Creates the smallest rectangle containing both of the specified points.
