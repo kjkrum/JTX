@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Converts byte values to and from Unicode characters corresponding to the
- * glyphs of IBM codepage 437.  This could be used to copy the contents of a
- * {@link Buffer} into a printable string, or create a {@link SoftFont} that
- * renders glyphs with a Unicode font.
+ * Converts ASCII bytes to and from the Unicode characters corresponding to
+ * the glyphs of IBM code page 437.
  *
  * @author Kevin Krumwiede (kjkrum@gmail.com)
  */
@@ -88,7 +86,7 @@ public class Cp437 {
 		if(encoded.containsKey(c)) return encoded.get(c);
 		else throw new IllegalArgumentException();
 	}
-		
+	
 	public static char[] getDecodeTable() {
 		return Arrays.copyOf(decoded, decoded.length);
 	}

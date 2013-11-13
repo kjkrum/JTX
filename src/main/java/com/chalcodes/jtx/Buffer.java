@@ -2,14 +2,18 @@ package com.chalcodes.jtx;
 
 import java.awt.Rectangle;
 
-// TODO change the parameter order of setters to source, destination?
+// TODO change parameter orders?
 
 /**
- * Conceptually encapsulates a two-dimensional array of integers, typically
- * encoding characters and attributes.  Implementations may handle attempts to
- * access coordinates outside the buffer extents by changing the extents,
- * truncating or wrapping the data, or throwing an
- * <tt>IndexOutOfBoundsException</tt>.
+ * An abstraction of a two-dimensional array of integers, typically encoding
+ * characters and attributes.  Implementations may handle attempts to access
+ * coordinates outside the buffer extents by changing the extents, truncating
+ * or wrapping the data, or throwing an <tt>IndexOutOfBoundsException</tt>.
+ * <p>
+ * <b>Note:</b> Individual parameters are ordered <i>column, row</i> to
+ * correspond with the <i>x</i> and <i>y</i> properties of <tt>Rectangle</tt>.
+ * But two-dimensional array parameters are indexed as <i>[row][column]</i> so
+ * that row operations can take advantage of <tt>System.arraycopy(...)</tt>.
  *
  * @author Kevin Krumwiede (kjkrum@gmail.com)
  */
