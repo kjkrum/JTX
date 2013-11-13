@@ -7,6 +7,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
@@ -41,13 +43,22 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		
 		buffer.addBufferObserver(this);
 		
-		// key listener *stops* working when display has focus... hmmm...
-//		addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseClicked(MouseEvent e) {
-//				requestFocusInWindow();
-//			}			
-//		});
+		// autoscroll
+		addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				Point p = getBufferCoordinates(e.getPoint());
+				Rectangle extents = Display.this.buffer.getExtents();
+				Rectangle r = new Rectangle(
+						(extents.x + p.x) * glyphSize.width,
+						(extents.y + p.y) * glyphSize.height,
+						glyphSize.width,
+						glyphSize.height);
+				System.out.println("to visible: " + r);
+				scrollRectToVisible(r);
+				validate();
+			}
+		});
 		
 		// this is what makes blinking text blink
 		if(blink) {
