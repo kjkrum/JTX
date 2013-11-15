@@ -58,7 +58,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 						(extents.y + p.y) * glyphSize.height,
 						glyphSize.width,
 						glyphSize.height);
-				System.out.println("to visible: " + r);
 				scrollRectToVisible(r);
 				validate();
 			}
