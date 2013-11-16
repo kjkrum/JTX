@@ -36,12 +36,12 @@ public class SelectionControl {
 	 * viewport and its client, which must be a {link Display}.  This is
 	 * because the client may be smaller than the viewport, and we want to
 	 * respond to click-drags into the client from anywhere in the viewport.
-	 *  
 	 * @param viewport the viewport
+	 *  
 	 * @throws IllegalArgumentException if the viewport's client is not a
 	 * {@link Display}
 	 */
-	public SelectionControl(JViewport viewport, PropertyChangeSupport propertyChangeSupport) {
+	public SelectionControl(PropertyChangeSupport propertyChangeSupport, JViewport viewport) {
 		if(viewport.getView() instanceof Display) {
 			display = (Display) viewport.getView();
 			buffer = display.getBuffer();				

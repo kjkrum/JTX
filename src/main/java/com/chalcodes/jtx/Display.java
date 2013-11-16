@@ -9,10 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.JComponent;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
@@ -29,8 +27,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	protected final Point preferredScrollOffset;
 	protected final Rectangle paintClip;
 	protected boolean blinkOn = true;
-	protected final MouseListener popupListener;
-	protected JPopupMenu popupMenu;
 	
 	public Display(Buffer buffer, SoftFont font, int columns, int rows) {
 		this(buffer, font, columns, rows, true);
@@ -73,22 +69,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 				}
 			}).start();
 		}
-		
-		popupListener = new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(e.isPopupTrigger()) {
-					showPopupMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(e.isPopupTrigger()) {
-					showPopupMenu(e);
-				}
-			}
-		};
 	}
 	
 	@Override
@@ -282,34 +262,4 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		return buffer;
 	}
 	
-	/**
-	 * Gets this display's popup menu, which may be null.
-	 * 
-	 * @return the popup menu
-	 */
-	public JPopupMenu getPopupMenu() {
-		return popupMenu;
-	}
-	
-	/**
-	 * Sets this display's popup menu.  If the menu is not null, a mouse
-	 * listener will be registered to display it.
-	 * 
-	 * @param popupMenu the popup menu, or null
-	 */
-	public void setPopupMenu(JPopupMenu popupMenu) {
-		if(this.popupMenu != null) {
-			this.popupMenu.setVisible(false);
-			this.popupMenu = null;
-			removeMouseListener(popupListener);
-		}
-		if(popupMenu != null) {
-			this.popupMenu = popupMenu;
-			addMouseListener(popupListener);
-		}
-	}
-	
-	protected void showPopupMenu(MouseEvent e) {
-		popupMenu.show(e.getComponent(), e.getX(), e.getY());
-	}
 }
