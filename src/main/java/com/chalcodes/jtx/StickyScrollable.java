@@ -22,7 +22,9 @@ public interface StickyScrollable extends Scrollable {
 	/**
 	 * Gets the offset by which this component's visible rectangle should be
 	 * scrolled, storing the result in <tt>offset</tt>.  As a side effect,
-	 * this method should reset the component's preferred scroll offset. 
+	 * this method should reset the component's preferred scroll offset.
+	 * 
+	 * @param offset the preferred offset relative to the current position
 	 */
 	public void getPreferredScrollOffset(Point offset);
 }

@@ -60,7 +60,7 @@ public class Cp437 {
 	private Cp437() { }
 
 	public static char decode(byte b) {
-		return decoded[(int) b & 0xff];
+		return decoded[b & 0xff];
 	}
 	
 	public static String decode(byte[] b, int off, int len) {

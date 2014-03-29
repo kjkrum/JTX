@@ -187,7 +187,7 @@ public class SelectionControl {
 	 * @param p1 the second point
 	 * @return the rectangle
 	 */
-	private Rectangle createRectangle(Point p0, Point p1) {
+	private static Rectangle createRectangle(Point p0, Point p1) {
 		Rectangle rect = new Rectangle(p0.x, p0.y, p1.x - p0.x, p1.y - p0.y);
 		if(rect.width < 0) {
 			rect.x += rect.width;

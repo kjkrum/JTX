@@ -48,7 +48,7 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				Point p = getBufferCoordinates(e.getPoint());
-				Rectangle extents = Display.this.buffer.getExtents();
+				//Rectangle extents = Display.this.buffer.getExtents();
 				Rectangle r = new Rectangle(
 						(extents.x + p.x) * glyphSize.width,
 						(extents.y + p.y) * glyphSize.height,
@@ -130,7 +130,7 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	}
 
 	@Override
-	public void extentsChanged(Buffer buffer, int x, int y, int width, int height) {
+	public void extentsChanged(Buffer source, int x, int y, int width, int height) {
 		if(extents.x != x) {
 			preferredScrollOffset.x -= x - extents.x;
 			extents.x = x;
@@ -145,7 +145,7 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	}
 
 	@Override
-	public void contentChanged(Buffer buffer, int x, int y, int width, int height) {
+	public void contentChanged(Buffer source, int x, int y, int width, int height) {
 		// just repaint changed region
 		repaint((x - extents.x) * glyphSize.width, (y - extents.y) * glyphSize.height, width * glyphSize.width, height * glyphSize.height);
 	}

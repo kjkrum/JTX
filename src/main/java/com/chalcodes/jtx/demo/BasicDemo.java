@@ -22,10 +22,10 @@ public class BasicDemo extends JFrame {
 	protected final SoftFont font;
 	protected final Display display;
 	
-	public BasicDemo() throws IOException {
+	public BasicDemo(int bufferLines) throws IOException {
 		setTitle("JTX Demo");
 		
-		buffer = new ScrollbackBuffer(80, 1000);
+		buffer = new ScrollbackBuffer(80, bufferLines);
 		font = new VgaSoftFont();
 		display = new Display(buffer, font, 80, 25);
 		
@@ -44,7 +44,7 @@ public class BasicDemo extends JFrame {
 			@Override
 			public void run() {
 				try {
-					new BasicDemo().setVisible(true);
+					new BasicDemo(1000).setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

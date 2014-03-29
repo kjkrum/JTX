@@ -6,9 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Similar to {@link XXXScrollbackBuffer}, but without any synchronization.  Use
- * this with a {@link Display} when the buffer will be modified only in
- * the UI thread.
+ * 
  *
  * @author <a href="mailto:kjkrum@gmail.com">Kevin Krumwiede</a>
  */
@@ -33,7 +31,9 @@ public class ScrollbackBuffer implements Buffer {
 	
 	@Override
 	public int getContent(int column, int row) {
-		if(row < extents.y || row > extents.y + extents.height) throw new IndexOutOfBoundsException();
+		if(row < extents.y || row > extents.y + extents.height) {
+			throw new IndexOutOfBoundsException(String.format("col %d, row %d, extents.y %d", column, row, extents.y));
+		}
 		return values[row % values.length][column];
 	}
 

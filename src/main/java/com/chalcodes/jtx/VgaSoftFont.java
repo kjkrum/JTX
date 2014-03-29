@@ -135,7 +135,7 @@ public class VgaSoftFont implements SoftFont {
 			switch(volatileImage.validate(gc)) {
 			case VolatileImage.IMAGE_INCOMPATIBLE:
 				volatileImage = gc.createCompatibleVolatileImage(bufferedImage.getWidth(), bufferedImage.getHeight());
-				// intentionally no break
+				//$FALL-THROUGH$
 			case VolatileImage.IMAGE_RESTORED:
 				Graphics2D volatileGraphics = (Graphics2D) volatileImage.getGraphics();
 				volatileGraphics.drawImage(bufferedImage, 0, 0, null);

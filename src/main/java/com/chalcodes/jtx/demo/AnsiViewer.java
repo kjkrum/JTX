@@ -39,8 +39,7 @@ import com.chalcodes.jtx.demo.lexer.DemoLexer;
  */
 public class AnsiViewer extends BasicDemo {
 	private static final long serialVersionUID = 1L;
-	
-	static protected final int BUFFER_SIZE = 1024 * 1024; // 1 MiB
+	private static final int BUFFER_SIZE = 1024 * 1024; // 1 MiB
 	
 	// demo emulation
 	protected final DemoLexer lexer;
@@ -50,6 +49,7 @@ public class AnsiViewer extends BasicDemo {
 	protected final JFileChooser fileChooser;
 	
 	public AnsiViewer() throws IOException, ClassNotFoundException {
+		super(1000);
 		setTitle("ANSI Viewer");
 		
 		lexer = new DemoLexer();
