@@ -27,7 +27,7 @@ public class BasicDemo extends JFrame {
 		
 		buffer = new ScrollbackBuffer(80, bufferLines);
 		font = new VgaSoftFont();
-		display = new Display(buffer, font, 80, 25);
+		display = new Display(buffer, font, 80, 25, true);
 		
 		// put the display in a scroll pane and add it to the frame
 		JScrollPane scrollPane = new StickyScrollPane(display);

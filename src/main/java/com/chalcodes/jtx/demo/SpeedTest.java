@@ -42,7 +42,7 @@ public class SpeedTest extends BasicDemo {
 						@Override
 						public void run() {
 							// set up
-							final int lines = 10000;
+							final int lines = 1000000;
 							final Random rand = new Random();
 							final String msg = "All work and no play makes Jack a dull boy.";
 							final int[] content = new int[msg.length()];

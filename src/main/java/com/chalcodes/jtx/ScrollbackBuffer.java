@@ -6,7 +6,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 
+ * A circular buffer that behaves like a typical terminal scrollback buffer.
+ * The number of columns is fixed, and the number of lines is initially zero.
+ * Content can be added until the maximum number of lines is reached, at which
+ * point the oldest content starts scrolling off the top of the buffer.
+ * <p>
+ * Before the buffer reaches its maximum capacity, the extents position is
+ * (0, 0) and the height increases as content is added.  When the buffer
+ * reaches capacity, the extents height stops changing and the y position
+ * begins increasing.  Thus, any given row is addressable using the same row
+ * number for as long as it remains in the buffer.
  *
  * @author <a href="mailto:kjkrum@gmail.com">Kevin Krumwiede</a>
  */

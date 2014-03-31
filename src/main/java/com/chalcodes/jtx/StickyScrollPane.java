@@ -1,12 +1,23 @@
 package com.chalcodes.jtx;
 
 import java.awt.Component;
+import java.awt.Rectangle;
 
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
 /**
- * A scroll pane with its normal viewport layout manager replaced by a
- * <tt>StickyViewportLayout</tt>.
+ * A scroll pane that respects the desired scroll offset of client views that
+ * implement {@link StickyScrollable}.  This allows components to do things
+ * like keep themselves scrolled to the bottom as their size changes.
+ * <p>
+ * The conventional way of doing this is by	queueing a {@link Runnable} to
+ * call {@link JComponent#scrollRectToVisible(Rectangle)}.  But this approach
+ * often causes the scroll bars to be painted at the original viewport
+ * position before being painted again at the new position, resulting in
+ * "bouncing" scroll bar knobs.  This class adjusts the viewport position
+ * while laying out the scroll pane, so the scroll bars are painted only once
+ * and the knobs do not bounce.
  * 
  * @author Kevin Krumwiede (kjkrum@gmail.com)
  * @see StickyViewportLayout
