@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.chalcodes.jtx.Buffer;
 import com.chalcodes.jtx.ScrollbackBuffer;
 import com.chalcodes.jtx.VgaBufferElement;
 import com.chalcodes.jtx.demo.lexer.DemoEventListener;
@@ -18,7 +19,7 @@ import com.chalcodes.jtx.demo.lexer.DemoEventListener;
  */
 public class DemoEmulation implements DemoEventListener {
 	/** The buffer on which this emulation will operate. */
-	protected final ScrollbackBuffer buffer;
+	protected final Buffer buffer;
 	/** The cursor position. */
 	protected final Point cursor;
 	/** Width of the buffer. */
@@ -37,7 +38,7 @@ public class DemoEmulation implements DemoEventListener {
 	/** The cursor position at the last save cursor command. */
 	protected final Point cursorMark;
 	
-	public DemoEmulation(ScrollbackBuffer buffer) {
+	public DemoEmulation(Buffer buffer) {
 		this.buffer = buffer;
 		Rectangle extents = buffer.getExtents();		
 		columns = extents.width;

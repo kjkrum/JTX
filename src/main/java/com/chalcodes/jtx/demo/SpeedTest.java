@@ -19,7 +19,7 @@ public class SpeedTest extends BasicDemo {
 	private static final int BUFFER_LINES = 1000;
 
 	public SpeedTest() throws IOException {
-		super(BUFFER_LINES);
+		super(BUFFER_LINES, false);
 		setTitle("JTX Speed Test");
 	}
 	

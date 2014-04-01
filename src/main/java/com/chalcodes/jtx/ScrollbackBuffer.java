@@ -200,6 +200,10 @@ public class ScrollbackBuffer implements Buffer {
 	 * <tt>IndexOutOfBoundsException</tt>.
 	 */
 	public void advance(int row) {
+		
+		// TODO eliminate this method, and make it possible to do the same
+		// thing by writing an empty string ahead of the buffer extents
+		
 		if(row < extents.y) throw new IndexOutOfBoundsException();
 		int tail = extents.y + extents.height;		
 		if(row < tail) return;

@@ -49,7 +49,7 @@ public class AnsiViewer extends BasicDemo {
 	protected final JFileChooser fileChooser;
 	
 	public AnsiViewer() throws IOException, ClassNotFoundException {
-		super(1000);
+		super(1000, false);
 		setTitle("ANSI Viewer");
 		
 		lexer = new DemoLexer();

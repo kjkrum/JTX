@@ -88,16 +88,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		}		
 	}
 	
-	/**
-	 * Returns the coordinates of the buffer cell corresponding to the
-	 * specified coordinates on the component.
-	 */
-	public Point getBufferCell(Point pixel) {
-		int px = pixel.x / glyphWidth;
-		int py = pixel.y / glyphHeight;
-		return new Point(px + extents.x, py + extents.y);
-	}
-	
 	@Override
 	protected void paintComponent(Graphics g) {
 		g.getClipBounds(paintClip);
@@ -128,19 +118,26 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 				// determine what to draw
 				int bCol = col + extents.x;
 				int bRow = row + extents.y;
-//				if(extents.contains(bCol, bRow)) {
-					// draw char from buffer
-					int value = buffer.getContent(bCol, bRow);
-					font.drawGlyph(value, blinkOn, g, x, y);
-//				}
-//				else {
-//					// draw black box
-//					g.fillRect(x, y, glyphWidth, glyphHeight);
-//				}
+				// draw char from buffer
+				int value = buffer.getContent(bCol, bRow);
+				font.drawGlyph(value, blinkOn, g, x, y);
 			}
 		}
 	}
 
+	
+	// TODO redundant - eliminate one or two of these three methods
+		
+	/**
+	 * Returns the coordinates of the buffer cell corresponding to the
+	 * specified coordinates on the component.
+	 */
+	public Point getBufferCell(Point pixel) {
+		int px = pixel.x / glyphWidth;
+		int py = pixel.y / glyphHeight;
+		return new Point(px + extents.x, py + extents.y);
+	}
+	
 	/**
 	 * Calculates the buffer coordinates corresponding to a point in the
 	 * component's coordinate space.  Note that if the point is outside the
@@ -182,8 +179,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	
 	@Override
 	public void extentsChanged(Buffer source, int x, int y, int width, int height) {
-		// TODO this should be smarter
-		
 //		System.out.printf("extents: %d, %d, %d, %d\n", x, y, width, height);
 		
 		// stick to the bottom as the component is growing
@@ -207,8 +202,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		
 //		System.out.println("scroll offset: " + preferredScrollOffset);
 	}
-	
-	// TODO separate updatePreferredScrollOffset method?
 
 	@Override
 	public void contentChanged(Buffer source, int x, int y, int width, int height) {

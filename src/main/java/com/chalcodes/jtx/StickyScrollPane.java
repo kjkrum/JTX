@@ -11,7 +11,7 @@ import javax.swing.JScrollPane;
  * implement {@link StickyScrollable}.  This allows components to do things
  * like keep themselves scrolled to the bottom as their size changes.
  * <p>
- * The conventional way of doing this is by	queueing a {@link Runnable} to
+ * The conventional way of doing this is by queueing a {@link Runnable} to
  * call {@link JComponent#scrollRectToVisible(Rectangle)}.  But this approach
  * often causes the scroll bars to be painted at the original viewport
  * position before being painted again at the new position, resulting in
