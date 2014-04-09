@@ -1,7 +1,6 @@
 package com.chalcodes.jtx.demo;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -9,17 +8,15 @@ import javax.swing.SwingUtilities;
 
 import com.chalcodes.jtx.VgaBufferElement;
 
-
 /**
- * A demo that spawns a thread to write to the Buffer, simulating network
- * activity or a large file read.
+ * A demo that spawns a thread to write to the Buffer.
  */
-public class SpeedTest extends BasicDemo {
+public class SyncTest extends BasicDemo {
 	private static final long serialVersionUID = 1L;
 	private static final int BUFFER_LINES = 1000;
 
-	public SpeedTest() throws IOException {
-		super(BUFFER_LINES, false);
+	public SyncTest() throws IOException {
+		super(BUFFER_LINES, true);
 		setTitle("JTX Speed Test");
 	}
 	
@@ -28,7 +25,7 @@ public class SpeedTest extends BasicDemo {
 			@Override
 			public void run() {
 				try {
-					final SpeedTest speedTest = new SpeedTest();
+					final SyncTest speedTest = new SyncTest();
 					speedTest.setVisible(true);
 					
 					JOptionPane.showMessageDialog(
@@ -66,19 +63,11 @@ public class SpeedTest extends BasicDemo {
 								for(int j = 0; j < content.length; ++j) {
 									content[j] = VgaBufferElement.setColor(content[j], attr);
 								}
-								// fire off the update in the Swing thread
-								final int _i = i;
-								final int[] _content = Arrays.copyOf(content, content.length);
-								SwingUtilities.invokeLater(new Runnable() {
-									@Override
-									public void run() {
-										speedTest.buffer.setContent(0, _i, _content, 0, _content.length);
-									}
-								});
+								speedTest.buffer.setContent(0, i, content, 0, content.length);
 								
 								// uncomment to experiment with scrolling behavior
 //								try {
-//									Thread.sleep(100);
+//									Thread.sleep(10);
 //								} catch (InterruptedException e) {
 //									e.printStackTrace();
 //								}

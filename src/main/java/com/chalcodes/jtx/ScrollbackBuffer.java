@@ -76,7 +76,7 @@ public class ScrollbackBuffer implements Buffer {
 	@Override
 	public void setContent(int column, int row, int value) {
 		if(row < extents.y) throw new IndexOutOfBoundsException();
-		advance(row);
+		extend(0, row);
 		values[row % values.length][column] = value;
 		fireContentChanged(column, row, 1, 1);	
 		
@@ -85,7 +85,7 @@ public class ScrollbackBuffer implements Buffer {
 	@Override
 	public void setContent(int column, int row, int[] values, int off, int len) {
 		if(off < 0 || len < 0 || off + len > values.length) throw new IllegalArgumentException();
-		advance(row);
+		extend(0, row);
 		if(column < 0) {
 			len += column;
 			off -= column;
@@ -114,53 +114,6 @@ public class ScrollbackBuffer implements Buffer {
 		}
 		fireContentChanged(column, row, width, height);
 	}
-
-	/**
-	 * A convenience method for writing a character sequence to the buffer.
-	 * This method truncates any part of the sequence that falls outside the
-	 * buffer extents.
-	 * 
-	 * @param column
-	 * @param row
-	 * @param seq
-	 * @param off
-	 * @param len
-	 * @param attributes
-	 */
-	public void write(int column, int row, CharSequence seq, int off, int len, int attributes) {
-		if(off < 0 || len < 0 || off + len > seq.length()) throw new IllegalArgumentException();
-		advance(row);
-		if(column < 0) {
-			len += column;
-			off -= column;
-			column = 0;
-		}
-		if(column + len > values[0].length) {
-			len -= column + len - values[0].length;
-		}
-		if(len <= 0) return;
-		// set attributes
-		Arrays.fill(values[row % values.length], column, column + len, attributes & 0xFFFF0000);
-		// set characters
-		for(int i = 0; i < len; ++i) {
-			values[row % values.length][column + i] += seq.charAt(off + i);
-		}
-		fireContentChanged(column, row, len, 1);
-	}
-	
-	/**
-	 * A convenience method for writing a character sequence to the buffer.
-	 * This method truncates any part of the sequence that falls outside the
-	 * buffer extents.
-	 * 
-	 * @param column
-	 * @param row
-	 * @param seq
-	 * @param attributes
-	 */
-	public void write(int column, int row, CharSequence seq, int attributes) {
-		write(column, row, seq, 0, seq.length(), attributes);
-	}	
 
 	@Override
 	public Rectangle getExtents() {
@@ -199,11 +152,8 @@ public class ScrollbackBuffer implements Buffer {
 	 * (i.e., to a row less than <tt>getExtents().y</tt>) will result in a
 	 * <tt>IndexOutOfBoundsException</tt>.
 	 */
-	public void advance(int row) {
-		
-		// TODO eliminate this method, and make it possible to do the same
-		// thing by writing an empty string ahead of the buffer extents
-		
+	@Override
+	public void extend(int column, int row) {
 		if(row < extents.y) throw new IndexOutOfBoundsException();
 		int tail = extents.y + extents.height;		
 		if(row < tail) return;
@@ -223,8 +173,8 @@ public class ScrollbackBuffer implements Buffer {
 		}
 		else {
 			// split into two recursive calls that match the above conditions
-			advance(values.length - 1);
-			advance(row);
+			extend(0, values.length - 1);
+			extend(0, row);
 		}
 	}
 

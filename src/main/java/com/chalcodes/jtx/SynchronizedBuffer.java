@@ -3,7 +3,8 @@ package com.chalcodes.jtx;
 import java.awt.Rectangle;
 
 /**
- * A synchronized wrapper around a buffer.  Synchronizes on itself.
+ * A synchronized wrapper around a buffer.  All methods synchronize on the
+ * wrapper.
  *
  * @author <a href="mailto:kjkrum@gmail.com">Kevin Krumwiede</a>
  */
@@ -55,6 +56,11 @@ public class SynchronizedBuffer implements Buffer {
 	@Override
 	synchronized public void setContent(int column, int row, int[][] values, int width, int height) {
 		wrapped.setContent(column, row, values, width, height);
+	}
+
+	@Override
+	synchronized public void extend(int column, int row) {
+		wrapped.extend(column, row);
 	}
 
 	@Override

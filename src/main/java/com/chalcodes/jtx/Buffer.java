@@ -104,7 +104,17 @@ public interface Buffer {
 	 * @param height the height of the region to be copied
 	 */
 	public abstract void setContent(int column, int row, int[][] values, int width, int height);
-
+	
+	/**
+	 * Extends the buffer extents so they contain the specified coordinates.
+	 * As with reads and writes, implementations may transform invalid values,
+	 * ignore them, or or throw an <tt>IndexOutOfBoundsException</tt>.
+	 * 
+	 * @param column the column
+	 * @param row the row
+	 */
+	public abstract void extend(int column, int row);
+	
 	/**
 	 * Gets the buffer extents.
 	 */

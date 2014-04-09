@@ -1,18 +1,14 @@
 package com.chalcodes.jtx;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
-import javax.swing.Timer;
 
 /**
  * A Swing terminal display.
@@ -21,6 +17,7 @@ import javax.swing.Timer;
  */
 public class Display extends JComponent implements BufferObserver, StickyScrollable {
 	private static final long serialVersionUID = 4118501272135028272L;
+	@SuppressWarnings("unused")
 	private static final int TEXT_BLINK_INTERVAL = 750;
 	
 	protected final Buffer buffer;
@@ -29,15 +26,24 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	protected final int glyphHeight;
 	protected final int initialViewportWidth;
 	protected final int initialViewportHeight;
-
-	// swing thread only
-	protected final Rectangle paintClip = new Rectangle();
-	protected boolean blinkOn = true;	
-	
-	// require synchronization
+	/**
+	 * Current buffer extents.
+	 */
 	protected final Rectangle extents;
-	protected final Point preferredScrollOffset;
-	protected boolean atBottom;
+	/**
+	 * Change in <tt>extents.y</tt> since the last call to
+	 * {@link #getPreferredViewPosition(Rectangle)}.  Used to calculate the
+	 * preferred view position and compensate for extents changes between
+	 * layout and painting.
+	 */
+	protected int deltaY = 0;
+	/**
+	 * True if the bottom of the component was visible the last time any part
+	 * of the component was painted.  This is how
+	 * {@link #getPreferredViewPosition(Point)} knows what to do.
+	 */
+	protected boolean atBottom = false;
+	protected boolean blinkOn = true;
 	
 	/**
 	 * Creates a new display.  If blinking is enabled, the entire component
@@ -59,7 +65,6 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		initialViewportWidth = columns * glyphWidth;
 		initialViewportHeight = rows * glyphHeight;
 		extents = buffer.getExtents();
-		preferredScrollOffset = new Point(0, 0);
 		
 		// autoscroll
 		addMouseMotionListener(new MouseAdapter() {
@@ -77,93 +82,93 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		});
 		
 		// this is what makes blinking text blink
-		if(blink) {
-			new Timer(TEXT_BLINK_INTERVAL, new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					blinkOn = !blinkOn;
-					repaint();
-				}
-			}).start();
-		}		
+//		if(blink) {
+//			new Timer(TEXT_BLINK_INTERVAL, new ActionListener() {
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					blinkOn = !blinkOn;
+//					repaint();
+//				}
+//			}).start();
+//		}		
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		g.getClipBounds(paintClip);
+		final Rectangle visible = getVisibleRect();
+		atBottom = (visible.y + visible.height == getHeight());
+		System.out.println(System.currentTimeMillis() + " paintComponent: visible " + visible + ", height " + getHeight() + ", atBottom " + atBottom);
+
+		final Rectangle paintClip = g.getClipBounds();
 //		System.out.println("paint clip: " + paintClip);
-		atBottom = paintClip.y + paintClip.height == getHeight();
-		if(!atBottom) {
-			preferredScrollOffset.y = 0;
-		}
-
-		// determine cell range touched by clip - relative, not absolute
-		int cx = paintClip.x / glyphWidth;
-		int cy = paintClip.y / glyphHeight;
-		int cx2 = (paintClip.x + paintClip.width) / glyphWidth;
-		int cy2 = (paintClip.y + paintClip.height) / glyphHeight;
-		int cw = cx2 - cx;
-		int ch = cy2 - cy;
-
-//		System.out.printf("painting: %d, %d, %d, %d\n", cx + extents.x, cy + extents.y, cw, ch);
-
-		g.setColor(Color.BLACK);
-
-		// row & col are character coords relative to the position of the extents
-		for(int row = cy; row < cy + ch; ++row) {
-			for(int col = cx; col < cx + cw; ++col) {
-				// determine where to draw
-				int x = col * glyphWidth;
-				int y = row * glyphHeight;
-				// determine what to draw
-				int bCol = col + extents.x;
-				int bRow = row + extents.y;
-				// draw char from buffer
-				int value = buffer.getContent(bCol, bRow);
+		
+		// determine the cell range touched by the clip
+		final Point topLeftCell = getBufferCoordinates(paintClip.x, paintClip.y);
+		final Point bottomRightCell = getBufferCoordinates(paintClip.x + paintClip.width - 1, paintClip.y + paintClip.height - 1);
+		
+		for(int row = topLeftCell.y; row <= bottomRightCell.y; ++row) {
+			for(int col = topLeftCell.x; col <= bottomRightCell.x; ++col) {
+				// row & col are absolute buffer coordinates - what to paint
+				// compute where to paint it, taking advantage of the fact
+				// that (extents.x, extents.y) of the buffer coordinate space
+				// corresponds to (0, 0) of the graphics coordinate space 
+				int x = (col - extents.x) * glyphWidth;
+				int y = (row - extents.y) * glyphHeight;
+				// TODO correct for deltaY
+				int value = buffer.getContent(col, row);
 				font.drawGlyph(value, blinkOn, g, x, y);
 			}
 		}
 	}
 
-	
-	// TODO redundant - eliminate one or two of these three methods
-		
 	/**
-	 * Returns the coordinates of the buffer cell corresponding to the
-	 * specified coordinates on the component.
+	 * Calculates the buffer coordinates corresponding to a point in the
+	 * component's coordinate space, storing the value in <tt>result</tt>.
+	 * Note that if the point is outside the component, the result will be
+	 * outside the buffer extents.  The other <tt>getBufferCoordinates</tt>
+	 * methods are implemented by calling this version.
+	 * 
+	 * @param x the x coordinate relative to the component
+	 * @param y the y coordinate relative to the component
+	 * @param result the object in which to store the buffer coordinates
 	 */
-	public Point getBufferCell(Point pixel) {
-		int px = pixel.x / glyphWidth;
-		int py = pixel.y / glyphHeight;
-		return new Point(px + extents.x, py + extents.y);
+	public void getBufferCoordinates(int x, int y, Point result) {
+		int col = (int) Math.floor(((double)x) / glyphWidth) + extents.x;
+		int row = (int) Math.floor(((double)y) / glyphHeight) + extents.y;
+		result.setLocation(col, row);
 	}
 	
 	/**
-	 * Calculates the buffer coordinates corresponding to a point in the
-	 * component's coordinate space.  Note that if the point is outside the
-	 * component, the value returned will be outside the buffer extents.
+	 * Convenience method for {@link #getBufferCoordinates(int, int, Point)}.
 	 * 
-	 * @param point the location relative to the component
-	 * @return the corresponding buffer coordinates
+	 * @param point
+	 * @param result the object in which to store the buffer coordinates
 	 */
-	public Point getBufferCoordinates(Point point) {
+	public final void getBufferCoordinates(Point point, Point result) {
+		getBufferCoordinates(point.x, point.y, result);
+	}
+	
+	/**
+	 * Convenience method for {@link #getBufferCoordinates(int, int, Point)}.
+	 * 
+	 * @param x the x coordinate relative to the component
+	 * @param y the y coordinate relative to the component
+	 * @return a new point containing the buffer coordinates
+	 */
+	public final Point getBufferCoordinates(int x, int y) {
 		Point result = new Point();
-		getBufferCoordinates(point, result);
+		getBufferCoordinates(x, y, result);
 		return result;
 	}
 	
 	/**
-	 * Calculates the buffer coordinates corresponding to a point in the
-	 * component's coordinate space, storing the value in <tt>result</tt>.
-	 * The point may be outside the buffer extents.
+	 * Convenience method for {@link #getBufferCoordinates(int, int, Point)}.
 	 * 
-	 * @param point the location relative to the component
-	 * @param result the object in which to store the buffer coordinates
+	 * @param point
+	 * @return
 	 */
-	public void getBufferCoordinates(Point point, Point result) {
-		int col = (int) Math.floor((double)point.x / glyphWidth) + extents.x;
-		int row = (int) Math.floor((double)point.y / glyphHeight) + extents.y;
-		result.setLocation(col, row);
+	public final Point getBufferCoordinates(Point point) {
+		return getBufferCoordinates(point.x, point.y);
 	}
 	
 	/**
@@ -175,32 +180,13 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		return buffer;
 	}
 	
-	// BufferObserver
-	
 	@Override
 	public void extentsChanged(Buffer source, int x, int y, int width, int height) {
 //		System.out.printf("extents: %d, %d, %d, %d\n", x, y, width, height);
-		
-		// stick to the bottom as the component is growing
-		if((extents.height != height || extents.width != width)) {
-			if(atBottom) {
-				preferredScrollOffset.y += height - extents.height;
-			}
-			extents.setSize(width, height);
-			revalidate();
-		}
-		
-		// hold position as the component is scrolling
-		if(extents.y != y || extents.x != x) {
-			if(!atBottom) {
-				preferredScrollOffset.y -= y - extents.y;
-			}
-			extents.setLocation(x, y);
-			revalidate();
-			repaint();
-		}
-		
-//		System.out.println("scroll offset: " + preferredScrollOffset);
+		deltaY += y - extents.y;
+		extents.setBounds(x, y, width, height);
+		revalidate();
+		repaint();
 	}
 
 	@Override
@@ -228,7 +214,7 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		int h = extents.height * glyphHeight;
 		
 		return new Dimension(w, h);
-	}
+	}	
 
 	@Override
 	public Dimension getPreferredScrollableViewportSize() {
@@ -239,6 +225,25 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		int w = Math.max(initialViewportWidth, extents.width * glyphWidth);
 		int h = Math.max(initialViewportHeight, extents.height * glyphHeight);
 		return new Dimension(w, h);
+	}	
+
+	@Override
+	public Point getPreferredViewPosition(Rectangle currentViewport) {
+		final Point newPosition = currentViewport.getLocation();
+//		System.out.println(System.currentTimeMillis() + " current position: " + newPosition);
+		if(atBottom) {
+//			System.out.println(System.currentTimeMillis() + " preferred size: " + getPreferredSize());
+//			System.out.println(System.currentTimeMillis() + " viewport height: " + currentViewport.height);
+			newPosition.y += getPreferredSize().height - currentViewport.height;
+		}
+		else {
+//			System.out.println(System.currentTimeMillis() + " deltaY: " + deltaY);
+			newPosition.y -= deltaY * glyphHeight;
+		}		
+		deltaY = 0;
+		if(newPosition.y < 0) newPosition.y = 0;
+//		System.out.println(System.currentTimeMillis() + " preferred position: " + newPosition);
+		return newPosition;
 	}
 
 	@Override
@@ -299,8 +304,10 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	}	
 
 	@Override
-	public void getPreferredScrollOffset(Point point) {
-		point.setLocation(preferredScrollOffset.x * glyphWidth, preferredScrollOffset.y * glyphHeight);
-		preferredScrollOffset.setLocation(0, 0);
-	}	
+	public void setSize(int width, int height) {
+		super.setSize(width, height);
+//		System.out.printf(System.currentTimeMillis() + " setSize: %d, %d\n", width, height);
+	}
+	
+	
 }

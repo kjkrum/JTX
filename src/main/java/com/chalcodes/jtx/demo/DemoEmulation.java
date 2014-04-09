@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.chalcodes.jtx.Buffer;
-import com.chalcodes.jtx.ScrollbackBuffer;
 import com.chalcodes.jtx.VgaBufferElement;
 import com.chalcodes.jtx.demo.lexer.DemoEventListener;
 
@@ -45,7 +44,7 @@ public class DemoEmulation implements DemoEventListener {
 		// position cursor to new row at bottom of buffer
 		cursor = new Point(0, extents.x + extents.height);
 		maxLine = cursor.y;
-		buffer.advance(maxLine);
+		buffer.extend(0, maxLine);
 		pageMark = cursor.y;
 		cursorMark = new Point(cursor);
 	}
@@ -69,7 +68,7 @@ public class DemoEmulation implements DemoEventListener {
 		if(cursor.x >= columns) cursor.x = columns - 1;
 		if(cursor.y < pageMark) cursor.y = pageMark;
 		if(cursor.y > maxLine) {
-			buffer.advance(cursor.y);
+			buffer.extend(0, cursor.y);
 			maxLine = cursor.y;
 		}		
 	}
@@ -88,7 +87,7 @@ public class DemoEmulation implements DemoEventListener {
 		if(params.size() == 0) ++cursor.y;
 		else if(params.size() == 1) cursor.y += params.get(0);
 		if(cursor.y > maxLine) {
-			buffer.advance(cursor.y);
+			buffer.extend(0, cursor.y);
 			maxLine = cursor.y;
 		}
 	}
@@ -124,7 +123,7 @@ public class DemoEmulation implements DemoEventListener {
 	@Override
 	public void clearScreen(CharSequence seq, int off, int len) {
 		++maxLine;
-		buffer.advance(maxLine);
+		buffer.extend(0, maxLine);
 		pageMark = maxLine;
 		cursor.setLocation(0, maxLine);	
 	}
@@ -196,7 +195,7 @@ public class DemoEmulation implements DemoEventListener {
 		++cursor.y;
 		if(cursor.y > maxLine) {
 			++maxLine;
-			buffer.advance(maxLine);
+			buffer.extend(0, maxLine);
 		}
 	}
 
@@ -226,7 +225,7 @@ public class DemoEmulation implements DemoEventListener {
 	@Override
 	public void literalText(CharSequence seq, int off, int len) {
 		// TODO: line wrap?
-		buffer.write(cursor.x, cursor.y, seq, off, len, attributes);
+		write(cursor.x, cursor.y, seq, off, len, attributes);
 		// advance the cursor
 		cursor.x += len;
 		if(cursor.x == columns) {
@@ -234,7 +233,7 @@ public class DemoEmulation implements DemoEventListener {
 			++cursor.y;
 			if(cursor.y > maxLine) {
 				++maxLine;
-				buffer.advance(maxLine);
+				buffer.extend(0, maxLine);
 			}
 		}
 	}
@@ -262,5 +261,44 @@ public class DemoEmulation implements DemoEventListener {
 		
 		return list;
 	}
+	
+	// TODO moved from ScrollbackBuffer; move to a BufferWriter
+	
+	/**
+	 * A convenience method for writing a character sequence to the buffer.
+	 * This method truncates any part of the sequence that falls outside the
+	 * buffer extents.
+	 */
+	public void write(int column, int row, CharSequence seq, int off, int len, int attributes) {
+		if(off < 0 || len < 0 || off + len > seq.length()) throw new IllegalArgumentException();
+		buffer.extend(0, row);
+		if(column < 0) {
+			len += column;
+			off -= column;
+			column = 0;
+		}
+		Rectangle extents = buffer.getExtents();
+		if(column + len > extents.x) {
+			len -= column + len - extents.x;
+		}
+		if(len <= 0) return;
+		
+		int[] values = new int[len];
+		Arrays.fill(values, 0, len, attributes & 0xFFFF0000);
+		// set characters
+		for(int i = 0; i < len; ++i) {
+			values[column + i] += seq.charAt(off + i);
+		}
+		buffer.setContent(column, row, values, 0, len);
+	}
+	
+	/**
+	 * A convenience method for writing a character sequence to the buffer.
+	 * This method truncates any part of the sequence that falls outside the
+	 * buffer extents.
+	 */
+	public void write(int column, int row, CharSequence seq, int attributes) {
+		write(column, row, seq, 0, seq.length(), attributes);
+	}	
 
 }
