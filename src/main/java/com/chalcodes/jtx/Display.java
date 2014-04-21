@@ -97,7 +97,7 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	protected void paintComponent(Graphics g) {
 		final Rectangle visible = getVisibleRect();
 		atBottom = (visible.y + visible.height == getHeight());
-		System.out.println(System.currentTimeMillis() + " paintComponent: visible " + visible + ", height " + getHeight() + ", atBottom " + atBottom);
+//		System.out.println(System.currentTimeMillis() + " paintComponent: visible " + visible + ", height " + getHeight() + ", atBottom " + atBottom);
 
 		final Rectangle paintClip = g.getClipBounds();
 //		System.out.println("paint clip: " + paintClip);
@@ -228,13 +228,16 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	}	
 
 	@Override
-	public Point getPreferredViewPosition(Rectangle currentViewport) {
+	public Point getPreferredViewPosition(Rectangle currentViewport, Rectangle preferredSize) {
+		// TODO compute atBottom here based on current size?
+		
+		
 		final Point newPosition = currentViewport.getLocation();
 //		System.out.println(System.currentTimeMillis() + " current position: " + newPosition);
 		if(atBottom) {
 //			System.out.println(System.currentTimeMillis() + " preferred size: " + getPreferredSize());
 //			System.out.println(System.currentTimeMillis() + " viewport height: " + currentViewport.height);
-			newPosition.y += getPreferredSize().height - currentViewport.height;
+			newPosition.y += preferredSize.height - currentViewport.height;
 		}
 		else {
 //			System.out.println(System.currentTimeMillis() + " deltaY: " + deltaY);

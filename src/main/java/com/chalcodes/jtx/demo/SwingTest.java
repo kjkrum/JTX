@@ -10,9 +10,10 @@ import javax.swing.SwingUtilities;
 import com.chalcodes.jtx.VgaBufferElement;
 
 /**
- * A demo that spawns a thread to write to the Buffer, queueing writes in the
- * Swing thread.  Includes a small delay between writes.  Comment the delay to
- * test the maximum write speed.
+ * A demo that spawns a thread to write to the Buffer, queueing tasks in the
+ * Swing thread to perform the writes.  Includes a small delay between writes.
+ * Comment out the delay to test the maximum write speed.  On my system,
+ * writing with no delay makes it hard for Swing to squeeze in a repaint.
  */
 public class SwingTest extends BasicDemo {
 	private static final long serialVersionUID = 1L;
@@ -20,7 +21,7 @@ public class SwingTest extends BasicDemo {
 
 	public SwingTest() throws IOException {
 		super(BUFFER_LINES, false);
-		setTitle("JTX Speed Test");
+		setTitle("JTX Swing Scrolling Test");
 	}
 	
 	public static void main(String[] args) {
@@ -34,7 +35,7 @@ public class SwingTest extends BasicDemo {
 					JOptionPane.showMessageDialog(
 							speedTest,
 							"Click to begin.",
-							"Speed Test",
+							"Swing Test",
 							JOptionPane.PLAIN_MESSAGE
 						);
 					
@@ -42,7 +43,7 @@ public class SwingTest extends BasicDemo {
 						@Override
 						public void run() {
 							// set up
-							final int lines = 100;
+							final int lines = 1000;
 							final Random rand = new Random();
 							final String msg = "All work and no play makes Jack a dull boy.";
 							final int[] content = new int[msg.length()];
@@ -77,11 +78,11 @@ public class SwingTest extends BasicDemo {
 								});
 								
 								// uncomment to experiment with scrolling behavior
-//								try {
-//									Thread.sleep(1);
-//								} catch (InterruptedException e) {
-//									e.printStackTrace();
-//								}
+								try {
+									Thread.sleep(1);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
 							}
 							final long end = System.currentTimeMillis();
 							

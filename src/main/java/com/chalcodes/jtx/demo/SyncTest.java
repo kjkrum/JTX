@@ -17,7 +17,7 @@ public class SyncTest extends BasicDemo {
 
 	public SyncTest() throws IOException {
 		super(BUFFER_LINES, true);
-		setTitle("JTX Speed Test");
+		setTitle("JTX Synchronized Scrolling Test");
 	}
 	
 	public static void main(String[] args) {
@@ -31,7 +31,7 @@ public class SyncTest extends BasicDemo {
 					JOptionPane.showMessageDialog(
 							speedTest,
 							"Click to begin.",
-							"Speed Test",
+							"Sync Test",
 							JOptionPane.PLAIN_MESSAGE
 						);
 					
@@ -67,7 +67,7 @@ public class SyncTest extends BasicDemo {
 								
 								// uncomment to experiment with scrolling behavior
 //								try {
-//									Thread.sleep(10);
+//									Thread.sleep(1);
 //								} catch (InterruptedException e) {
 //									e.printStackTrace();
 //								}

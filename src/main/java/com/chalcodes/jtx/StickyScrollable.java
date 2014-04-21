@@ -12,5 +12,14 @@ import javax.swing.Scrollable;
  * @author Kevin Krumwiede (kjkrum@gmail.com)
  */
 public interface StickyScrollable extends Scrollable {
-	public Point getPreferredViewPosition(Rectangle currentViewport);
+	/**
+	 * The {@link StickyViewportLayout} obtains the component's preferred size
+	 * and passes it back to this method.  This value reflects the size that
+	 * will be assigned to the component.
+	 * 
+	 * @param currentViewport the current viewport in component coordinates
+	 * @param preferredSize the component's preferred size
+	 * @return the preferred view position
+	 */
+	public Point getPreferredViewPosition(Rectangle currentViewport, Rectangle preferredSize);
 }

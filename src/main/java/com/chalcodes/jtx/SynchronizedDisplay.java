@@ -78,9 +78,9 @@ public class SynchronizedDisplay extends Display {
 	}
 
 	@Override
-	public Point getPreferredViewPosition(Rectangle currentViewport) {
+	public Point getPreferredViewPosition(Rectangle currentViewport, Rectangle preferredSize) {
 		synchronized(buffer) {
-			return super.getPreferredViewPosition(currentViewport);
+			return super.getPreferredViewPosition(currentViewport, preferredSize);
 		}
 	}
 }

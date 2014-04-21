@@ -13,6 +13,7 @@ import java.util.Map;
 public class Cp437 {
 	
 	private static final char[] decoded;
+	// TODO use sparse array?
 	private static final Map<Character,Integer> encoded;
 	
 	static {
