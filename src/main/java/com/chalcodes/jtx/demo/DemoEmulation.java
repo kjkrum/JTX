@@ -224,7 +224,6 @@ public class DemoEmulation implements DemoEventListener {
 
 	@Override
 	public void literalText(CharSequence seq, int off, int len) {
-		// TODO: line wrap?
 		write(cursor.x, cursor.y, seq, off, len, attributes);
 		// advance the cursor
 		cursor.x += len;
@@ -262,7 +261,7 @@ public class DemoEmulation implements DemoEventListener {
 		return list;
 	}
 	
-	// TODO moved from ScrollbackBuffer; move to a BufferWriter
+	// TODO moved from ScrollbackBuffer; should be in a BufferWriter
 	
 	/**
 	 * A convenience method for writing a character sequence to the buffer.
@@ -271,15 +270,20 @@ public class DemoEmulation implements DemoEventListener {
 	 */
 	public void write(int column, int row, CharSequence seq, int off, int len, int attributes) {
 		if(off < 0 || len < 0 || off + len > seq.length()) throw new IllegalArgumentException();
+		
+//		System.out.printf("col %d, row %d, len %d, attr %d\n", column, row, len, attributes);
+		
 		buffer.extend(0, row);
+		
+		// assumes extents.x == 0		
 		if(column < 0) {
 			len += column;
 			off -= column;
 			column = 0;
 		}
 		Rectangle extents = buffer.getExtents();
-		if(column + len > extents.x) {
-			len -= column + len - extents.x;
+		if(column + len  > extents.width) {
+			len -= column + len - extents.width;
 		}
 		if(len <= 0) return;
 		
@@ -287,8 +291,9 @@ public class DemoEmulation implements DemoEventListener {
 		Arrays.fill(values, 0, len, attributes & 0xFFFF0000);
 		// set characters
 		for(int i = 0; i < len; ++i) {
-			values[column + i] += seq.charAt(off + i);
+			values[i] += seq.charAt(off + i);
 		}
+//		System.out.println("writing " + len + " chars with attr " + attributes);
 		buffer.setContent(column, row, values, 0, len);
 	}
 	

@@ -179,16 +179,14 @@ public class ScrollbackBuffer implements Buffer {
 	}
 
 	void fireContentChanged(int column, int row, int width, int height) {
-		int size = observers.size();
-		for(int i = 0; i < size; ++i) {
-			observers.get(i).contentChanged(this, column, row, width, height);
+		for(BufferObserver observer : observers) {
+			observer.contentChanged(this, column, row, width, height);
 		}
 	}	
 	
 	void fireExtentsChanged(int column, int row, int width, int height) {
-		int size = observers.size();
-		for(int i = 0; i < size; ++i) {
-			observers.get(i).extentsChanged(this, column, row, width, height);
+		for(BufferObserver observer : observers) {
+			observer.extentsChanged(this, column, row, width, height);
 		}
 	}	
 
