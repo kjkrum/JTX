@@ -13,10 +13,9 @@ import java.awt.Rectangle;
  * buffer and the same lock that threads writing to the buffer will already
  * hold when they call the <tt>BufferObserver</tt> methods.
  * <p>
- * Only the <tt>BufferObserver</tt> methods are guaranteed thread-safe.  By
- * necessity, other methods that access the same fields as these methods are
- * also synchronized.  However, exactly which methods those are is an
- * implementation detail that is subject to change.
+ * Only the <tt>BufferObserver</tt> methods are guaranteed thread-safe.  Other
+ * methods are also synchronized, but exactly which methods those are is an
+ * implementation detail and subject to change.
  * <p>
  * <b>Note:</b> The superclass constructor registers the display as an
  * observer of its buffer, leaking a reference to the display before it is

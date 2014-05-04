@@ -4,11 +4,14 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 /**
  * A Swing terminal display.
@@ -17,7 +20,6 @@ import javax.swing.SwingConstants;
  */
 public class Display extends JComponent implements BufferObserver, StickyScrollable {
 	private static final long serialVersionUID = 4118501272135028272L;
-	@SuppressWarnings("unused")
 	private static final int TEXT_BLINK_INTERVAL = 750;
 	
 	protected final Buffer buffer;
@@ -37,13 +39,11 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	 * layout and painting.
 	 */
 	protected int deltaY = 0;
-	/**
-	 * True if the bottom of the component was visible the last time any part
-	 * of the component was painted.  This is how
-	 * {@link #getPreferredViewPosition(Point)} knows what to do.
-	 */
-	protected boolean atBottom = false;
+
 	protected boolean blinkOn = true;
+	
+	// TODO reconsider linking display to buffer in display ctor.
+	// problem described in SynchronizedDisplay javadoc.
 	
 	/**
 	 * Creates a new display.  If blinking is enabled, the entire component
@@ -82,23 +82,19 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 		});
 		
 		// this is what makes blinking text blink
-//		if(blink) {
-//			new Timer(TEXT_BLINK_INTERVAL, new ActionListener() {
-//				@Override
-//				public void actionPerformed(ActionEvent e) {
-//					blinkOn = !blinkOn;
-//					repaint();
-//				}
-//			}).start();
-//		}		
+		if(blink) {
+			new Timer(TEXT_BLINK_INTERVAL, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					blinkOn = !blinkOn;
+					repaint();
+				}
+			}).start();
+		}		
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		final Rectangle visible = getVisibleRect();
-		atBottom = (visible.y + visible.height == getHeight());
-//		System.out.println(System.currentTimeMillis() + " paintComponent: visible " + visible + ", height " + getHeight() + ", atBottom " + atBottom);
-
 		final Rectangle paintClip = g.getClipBounds();
 //		System.out.println("paint clip: " + paintClip);
 		
@@ -114,7 +110,9 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 				// corresponds to (0, 0) of the graphics coordinate space 
 				int x = (col - extents.x) * glyphWidth;
 				int y = (row - extents.y) * glyphHeight;
-				// TODO correct for deltaY
+				// not correcting for deltaY here causes jitter when tracking
+				// scrolling content.  correcting causes black bars at the
+				// top.  jitter is minimal at speeds under 300 lines/sec.
 				int value = buffer.getContent(col, row);
 				font.drawGlyph(value, blinkOn, g, x, y);
 			}
@@ -201,7 +199,9 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 	}
 
 	// TODO reconsider whether the constructor params should determine the
-	// initial preferred size or the initial preferred viewport size
+	// initial preferred size or the initial preferred viewport size.  if
+	// the former, need to modify paintComponent to paint outside the buffer
+	// extents.
 	
 	@Override
 	public Dimension getPreferredSize() {
@@ -229,8 +229,8 @@ public class Display extends JComponent implements BufferObserver, StickyScrolla
 
 	@Override
 	public Point getPreferredViewPosition(Rectangle currentViewport, Rectangle preferredSize) {
-		// TODO compute atBottom here based on current size?
-		
+		final Dimension currentSize = getSize();
+		final boolean atBottom = (currentViewport.y + currentViewport.height >= currentSize.height);		
 		
 		final Point newPosition = currentViewport.getLocation();
 //		System.out.println(System.currentTimeMillis() + " current position: " + newPosition);

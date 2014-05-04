@@ -93,7 +93,7 @@ public class SwingTest extends BasicDemo {
 									JOptionPane.showMessageDialog(
 											speedTest,
 											"Wrote " + lines + " lines in " + (end - begin) + " ms.",
-											"Speed Test",
+											"Swing Test",
 											JOptionPane.INFORMATION_MESSAGE
 											);
 								}
